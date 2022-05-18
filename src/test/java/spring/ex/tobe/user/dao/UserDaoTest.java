@@ -9,8 +9,7 @@ import spring.ex.tobe.user.domain.User;
 class UserDaoTest {
 @Test
   public void main() throws SQLException, ClassNotFoundException {
-    ConnectionMaker connectionMaker = new NConnectionMaker();
-    UserDao dao = new UserDao(connectionMaker);
+    UserDao dao = new DaoFactory().userDao();
 
     User user = new User();
     user.setId("heejeong2");
