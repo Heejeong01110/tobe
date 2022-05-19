@@ -7,19 +7,17 @@ import java.sql.SQLException;
 import spring.ex.tobe.user.dao.Conncetion.ConnectionMaker;
 import spring.ex.tobe.user.domain.User;
 
-public class UserDao {
+public class AccountDao {
 
   private ConnectionMaker maker;
 
-  public UserDao(ConnectionMaker connectionMaker) {
+  public AccountDao(ConnectionMaker connectionMaker){
     maker = connectionMaker;
   }
-
   public void add(User user) throws ClassNotFoundException, SQLException {
-    Connection c = maker.makeNewConnection();
+    Connection c =  maker.makeNewConnection();
 
-    PreparedStatement ps = c.prepareStatement(
-        "insert into users (id, name, password) values (?, ?, ?)");
+    PreparedStatement ps = c.prepareStatement("insert into users (id, name, password) values (?, ?, ?)");
     ps.setString(1, user.getId());
     ps.setString(2, user.getName());
     ps.setString(3, user.getPassword());

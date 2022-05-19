@@ -1,11 +1,18 @@
 package spring.ex.tobe.user.dao;
 
 import spring.ex.tobe.user.dao.Conncetion.ConnectionMaker;
-import spring.ex.tobe.user.dao.Conncetion.NConnectionMaker;
+import spring.ex.tobe.user.dao.Conncetion.DConnectionMaker;
 
 public class DaoFactory {
   public UserDao userDao(){
-    ConnectionMaker connectionMaker = new NConnectionMaker();
-    return new UserDao(connectionMaker);
+    return new UserDao(connectionMaker());
+  }
+
+  public AccountDao accountDao(){
+    return new AccountDao(connectionMaker());
+  }
+
+  public ConnectionMaker connectionMaker(){
+    return new DConnectionMaker();
   }
 }
