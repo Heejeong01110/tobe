@@ -2,14 +2,17 @@ package spring.ex.tobe.user.dao;
 
 import java.sql.SQLException;
 import org.junit.jupiter.api.Test;
-import spring.ex.tobe.user.dao.Conncetion.ConnectionMaker;
-import spring.ex.tobe.user.dao.Conncetion.NConnectionMaker;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import spring.ex.tobe.user.domain.User;
 
 class UserDaoTest {
-@Test
+
+  @Test
   public void main() throws SQLException, ClassNotFoundException {
-    UserDao dao = new DaoFactory().userDao();
+    ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
+    UserDao dao = context.getBean("userDao", UserDao.class);
+//    UserDao dao = new DaoFactory().userDao();
 
     User user = new User();
     user.setId("heejeong2");
@@ -18,10 +21,10 @@ class UserDaoTest {
 
     dao.add(user);
 
-    System.out.println(user.getId()+" 등록 성공");
+    System.out.println(user.getId() + " 등록 성공");
 
-    User user2 =dao.get(user.getId());
+    User user2 = dao.get(user.getId());
     System.out.println(user2.getName());
     System.out.println(user2.getPassword());
-}
+  }
 }
