@@ -27,4 +27,21 @@ class UserDaoTest {
     System.out.println(user2.getName());
     System.out.println(user2.getPassword());
   }
+
+  @Test
+  public void daoTest() {
+    DaoFactory factory = new DaoFactory();
+    UserDao dao1 = factory.userDao();
+    UserDao dao2 = factory.userDao();
+
+    System.out.println(dao1); //다른 값 출력
+    System.out.println(dao2);
+
+    ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
+    UserDao dao3 = context.getBean("userDao", UserDao.class);
+    UserDao dao4 = context.getBean("userDao", UserDao.class);
+
+    System.out.println(dao3); //같은 값 출력
+    System.out.println(dao4);
+  }
 }
