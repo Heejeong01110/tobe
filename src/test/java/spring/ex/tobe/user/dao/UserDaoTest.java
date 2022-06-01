@@ -4,13 +4,16 @@ import java.sql.SQLException;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
 import spring.ex.tobe.user.domain.User;
 
 class UserDaoTest {
 
   @Test
   public void main() throws SQLException, ClassNotFoundException {
-    ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
+//    ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
+
+    GenericXmlApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
     UserDao dao = context.getBean("userDao", UserDao.class);
 //    UserDao dao = new DaoFactory().userDao();
 

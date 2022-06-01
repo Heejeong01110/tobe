@@ -9,14 +9,17 @@ import spring.ex.tobe.user.domain.User;
 
 public class UserDao {
 
-  private ConnectionMaker maker;
+  private ConnectionMaker connectionMaker;
 
-  public UserDao(ConnectionMaker connectionMaker) {
-    maker = connectionMaker;
+  public UserDao() {
+  }
+
+  public void setConnectionMaker(ConnectionMaker maker) {
+    this.connectionMaker = maker;
   }
 
   public void add(User user) throws ClassNotFoundException, SQLException {
-    Connection c = maker.makeConnection();
+    Connection c = connectionMaker.makeConnection();
 
     PreparedStatement ps = c.prepareStatement(
         "insert into users (id, name, password) values (?, ?, ?)");
@@ -31,7 +34,7 @@ public class UserDao {
   }
 
   public User get(String id) throws ClassNotFoundException, SQLException {
-    Connection c = maker.makeConnection();
+    Connection c = connectionMaker.makeConnection();
 
     PreparedStatement ps = c.prepareStatement("select * from users where id = ?");
     ps.setString(1, id);
