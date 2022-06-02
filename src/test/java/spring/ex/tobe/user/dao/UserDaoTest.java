@@ -1,20 +1,19 @@
 package spring.ex.tobe.user.dao;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThat;//라이브러리 확인(JUnitCore)
 
 import java.sql.SQLException;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;//라이브러리 확인(JUnitCore)
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import spring.ex.tobe.user.domain.User;
 
-class UserDaoTest {
+public class UserDaoTest {//public 확인(JUnitCore)
 
   @Test
   public void addAndGet() throws SQLException {
-    GenericXmlApplicationContext context = new GenericXmlApplicationContext(
+    ApplicationContext context = new GenericXmlApplicationContext(
         "applicationContext.xml");
     UserDao dao = context.getBean("userDao", UserDao.class);
 
