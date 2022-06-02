@@ -1,9 +1,9 @@
 package spring.ex.tobe.user.dao;
 
+import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import spring.ex.tobe.user.dao.Conncetion.ConnectionMaker;
-import spring.ex.tobe.user.dao.Conncetion.DConnectionMaker;
+import spring.ex.tobe.user.dao.Conncetion.CustomDataSource;
 
 @Configuration
 public class DaoFactory {
@@ -11,17 +11,19 @@ public class DaoFactory {
   @Bean
   public UserDao userDao() {
     UserDao userDao = new UserDao();
-    userDao.setConnectionMaker(connectionMaker());
+    userDao.setDataSource(dataSource());
     return userDao;
   }
 
   @Bean
   public AccountDao accountDao() {
-    return new AccountDao(connectionMaker());
+    AccountDao accountDao = new AccountDao();
+    accountDao.setDataSource(dataSource());
+    return accountDao;
   }
 
   @Bean
-  public ConnectionMaker connectionMaker() {
-    return new DConnectionMaker();
+  public DataSource dataSource() {
+    return new CustomDataSource().getDataSource();
   }
 }
