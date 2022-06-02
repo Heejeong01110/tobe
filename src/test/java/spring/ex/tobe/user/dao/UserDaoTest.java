@@ -12,18 +12,22 @@ import spring.ex.tobe.user.domain.User;
 
 public class UserDaoTest {//public 확인(JUnitCore)
 
+
   @Test
   public void addAndGet() throws SQLException {
     ApplicationContext context = new GenericXmlApplicationContext(
         "applicationContext.xml");
     UserDao dao = context.getBean("userDao", UserDao.class);
 
+    dao.deleteAll();
+    assertThat(dao.getCount(), is(0));
+
     User user = new User();
     user.setId("heejeong2");
     user.setName("희정");
     user.setPassword("password");
-
     dao.add(user);
+    assertThat(dao.getCount(), is(1));
 
     User user2 = dao.get(user.getId());
 
