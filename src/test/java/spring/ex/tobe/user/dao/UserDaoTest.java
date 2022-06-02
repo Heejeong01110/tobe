@@ -4,7 +4,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;//라이브러리 확인(JUnitCore)
 
 import java.sql.SQLException;
-import org.junit.Test;//라이브러리 확인(JUnitCore)
+import org.junit.jupiter.api.Test; //class에서 실행할 경우
+//import org.junit.Test;//라이브러리 확인(JUnitCore)
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import spring.ex.tobe.user.domain.User;
