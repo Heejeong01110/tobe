@@ -22,17 +22,47 @@ public class UserDaoTest {//public 확인(JUnitCore)
     dao.deleteAll();
     assertThat(dao.getCount(), is(0));
 
-    User user = new User();
-    user.setId("heejeong2");
-    user.setName("희정");
-    user.setPassword("password");
-    dao.add(user);
+    User user1 = new User("one","원","password1");
+    User user2 = new User("two","투","password2");
+
+    dao.add(user1);
+    dao.add(user2);
+    assertThat(dao.getCount(), is(2));
+
+    User userFind1 = dao.get(user1.getId());
+    assertThat(userFind1.getName(), is(user1.getName()));
+    assertThat(userFind1.getPassword(), is(user1.getPassword()));
+
+    User userFind2 = dao.get(user2.getId());
+    assertThat(userFind2.getName(), is(user2.getName()));
+    assertThat(userFind2.getPassword(), is(user2.getPassword()));
+  }
+
+  @Test
+  public void count() throws SQLException{
+    ApplicationContext context = new GenericXmlApplicationContext(
+        "applicationContext.xml");
+    UserDao dao = context.getBean("userDao", UserDao.class);
+
+    User user1 = new User("one","원","password1");
+    User user2 = new User("two","투","password2");
+    User user3 = new User("three","쓰리","password3");
+
+    dao.deleteAll();
+    assertThat(dao.getCount(), is(0));
+
+    dao.add(user1);
     assertThat(dao.getCount(), is(1));
 
-    User user2 = dao.get(user.getId());
+    dao.add(user2);
+    assertThat(dao.getCount(), is(2));
 
-    assertThat(user2.getName(), is(user.getName()));
-    assertThat(user2.getPassword(), is(user.getPassword()));
-    assertThat(user2.getId(), is(user.getId()));
+    dao.add(user3);
+    assertThat(dao.getCount(), is(3));
+
+
+
   }
+
+
 }
