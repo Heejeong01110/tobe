@@ -16,21 +16,25 @@ import spring.ex.tobe.user.domain.User;
 public class UserDaoTest {//public 확인(JUnitCore)
 
   private UserDao userDao;
+  private User user1;
+  private User user2;
+  private User user3;
 
   @BeforeEach
   public void setUp(){
     ApplicationContext context = new GenericXmlApplicationContext(
         "applicationContext.xml");
     userDao = context.getBean("userDao", UserDao.class);
+
+    user1 = new User("one", "원", "password1");
+    user2 = new User("two", "투", "password2");
+    user3 = new User("three", "쓰리", "password3");
   }
 
   @Test
   public void addAndGet() throws SQLException {
     userDao.deleteAll();
     assertThat(userDao.getCount(), is(0));
-
-    User user1 = new User("one", "원", "password1");
-    User user2 = new User("two", "투", "password2");
 
     userDao.add(user1);
     userDao.add(user2);
@@ -47,10 +51,6 @@ public class UserDaoTest {//public 확인(JUnitCore)
 
   @Test
   public void count() throws SQLException {
-    User user1 = new User("one", "원", "password1");
-    User user2 = new User("two", "투", "password2");
-    User user3 = new User("three", "쓰리", "password3");
-
     userDao.deleteAll();
     assertThat(userDao.getCount(), is(0));
 
