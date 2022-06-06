@@ -21,17 +21,14 @@ import spring.ex.tobe.user.domain.User;
 public class UserDaoTest {//public 확인(JUnitCore)
 
   @Autowired
-  private ApplicationContext context;
-
   private UserDao userDao;
+
   private User user1;
   private User user2;
   private User user3;
 
   @BeforeEach
   public void setUp(){
-    userDao = context.getBean("userDao", UserDao.class);
-
     user1 = new User("one", "원", "password1");
     user2 = new User("two", "투", "password2");
     user3 = new User("three", "쓰리", "password3");
