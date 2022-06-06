@@ -8,12 +8,20 @@ import java.sql.SQLException;
 import org.junit.jupiter.api.Test; //class에서 실행할 경우
 //import org.junit.Test;//라이브러리 확인(JUnitCore)
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import spring.ex.tobe.user.domain.User;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(locations = "/applicationContext.xml")
 public class UserDaoTest {//public 확인(JUnitCore)
+
+  @Autowired
+  private ApplicationContext context;
 
   private UserDao userDao;
   private User user1;
@@ -22,8 +30,6 @@ public class UserDaoTest {//public 확인(JUnitCore)
 
   @BeforeEach
   public void setUp(){
-    ApplicationContext context = new GenericXmlApplicationContext(
-        "applicationContext.xml");
     userDao = context.getBean("userDao", UserDao.class);
 
     user1 = new User("one", "원", "password1");
