@@ -18,7 +18,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import spring.ex.tobe.user.domain.User;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(locations = "/applicationContext.xml")
+@ContextConfiguration(locations = "/applicationContextTest.xml")
 @DirtiesContext
 public class testDBTest {
 
@@ -32,9 +32,6 @@ public class testDBTest {
   @BeforeEach
   public void setUp() {
     //testDB를 코드를 통해 별도로 설정
-    DataSource dataSource = new SingleConnectionDataSource("jdbc:mysql://localhost/testDB",
-        "spring", "root1234", true);
-    userDao.setDataSource(dataSource);
     user1 = new User("one", "원", "password1");
     user2 = new User("two", "투", "password2");
     user3 = new User("three", "쓰리", "password3");
