@@ -1,4 +1,4 @@
-package spring.ex.tobe.user.dao.strategy;
+package spring.ex.tobe.user.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
