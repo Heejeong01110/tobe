@@ -28,4 +28,9 @@ public class CalcSumTest {
   void multiplyOfNumbers() throws IOException {
     assertThat(calculator.calcMultiply(path), is(24));
   }
+
+  @Test
+  void concentrateString() throws IOException {
+    assertThat(calculator.concentrate(path), is("1234"));
+  }
 }

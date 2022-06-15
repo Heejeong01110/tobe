@@ -1,6 +1,6 @@
 package spring.ex.tobe.learningtest.template;
 
-public interface LineCallback {
+public interface LineCallback<T> {
 
-  Integer doSomethingWithLine(String Line, Integer value);
+  T doSomethingWithLine(String Line, T value);
 }
