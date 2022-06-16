@@ -1,16 +1,16 @@
 package spring.ex.tobe.user.dao;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;//라이브러리 확인(JUnitCore)
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.SQLException;
-import org.junit.jupiter.api.Test; //class에서 실행할 경우
-//import org.junit.Test;//라이브러리 확인(JUnitCore)
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -28,14 +28,14 @@ public class UserDaoTest {//public 확인(JUnitCore)
   private User user3;
 
   @BeforeEach
-  public void setUp(){
-    user1 = new User("one", "원", "password1");
-    user2 = new User("two", "투", "password2");
-    user3 = new User("three", "쓰리", "password3");
+  public void setUp() {
+    user1 = new User("aaaaa", "원", "password1");
+    user2 = new User("ccccc", "투", "password2");
+    user3 = new User("bbbbb", "쓰리", "password3");
   }
 
   @Test
-  public void addAndGet() throws SQLException {
+  public void addAndGet() {
     userDao.deleteAll();
     assertThat(userDao.getCount(), is(0));
 
@@ -53,7 +53,7 @@ public class UserDaoTest {//public 확인(JUnitCore)
   }
 
   @Test
-  public void count() throws SQLException {
+  public void count() {
     userDao.deleteAll();
     assertThat(userDao.getCount(), is(0));
 
@@ -68,7 +68,7 @@ public class UserDaoTest {//public 확인(JUnitCore)
   }
 
   @Test
-  public void getUserFailure() throws SQLException {
+  public void getUserFailure() {
     userDao.deleteAll();
     assertThat(userDao.getCount(), is(0));
 
@@ -76,4 +76,34 @@ public class UserDaoTest {//public 확인(JUnitCore)
   }
 
 
+  @Test
+  void getAll() {
+    userDao.deleteAll();
+    List<User> users0 = userDao.getAll();
+    assertThat(users0.size(), is(0));
+
+    userDao.add(user1);
+    List<User> users1 = userDao.getAll();
+    checkSameUser(user1, users1.get(0));
+
+    userDao.add(user2);
+    List<User> users2 = userDao.getAll();
+    assertThat(users2.size(), is(2));
+    checkSameUser(user1, users2.get(0));
+    checkSameUser(user2, users2.get(1));
+
+    userDao.add(user3);
+    List<User> users3 = userDao.getAll();
+    assertThat(users3.size(), is(3));
+    checkSameUser(user1, users3.get(0));
+    checkSameUser(user3, users3.get(1));
+    checkSameUser(user2, users3.get(2));
+  }
+
+  private void checkSameUser(User expect, User actual) {
+    assertThat(expect.getId(), is(actual.getId()));
+    assertThat(expect.getName(), is(actual.getName()));
+    assertThat(expect.getPassword(), is(actual.getPassword()));
+
+  }
 }
