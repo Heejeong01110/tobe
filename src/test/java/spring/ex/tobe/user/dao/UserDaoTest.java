@@ -105,6 +105,7 @@ public class UserDaoTest {//public 확인(JUnitCore)
   @Test
   void update() {
     dao.add(user1);
+    dao.add(user2);
 
     user1.setName("수정01");
     user1.setPassword("modify01");
@@ -115,6 +116,9 @@ public class UserDaoTest {//public 확인(JUnitCore)
 
     User user1Update = dao.get(user1.getId());
     checkSameUser(user1, user1Update);
+    //update문에서 where절이 없을 경우에도 정상적으로 실행되는 예외를 방지하기위해 추가로 테스트
+    User user2Update = dao.get(user2.getId());
+    checkSameUser(user2, user2Update);
   }
 
   private void checkSameUser(User expect, User actual) {
