@@ -13,10 +13,11 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import spring.ex.tobe.user.domain.Level;
 import spring.ex.tobe.user.domain.User;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(locations = "/applicationContextTest.xml")
+@ContextConfiguration(locations = "/applicationContext.xml")
 public class UserDaoTest {//public 확인(JUnitCore)
 
   @Autowired
@@ -28,9 +29,9 @@ public class UserDaoTest {//public 확인(JUnitCore)
 
   @BeforeEach
   public void setUp() {
-    user1 = new User("aaaaa", "원", "password1");
-    user2 = new User("ccccc", "투", "password2");
-    user3 = new User("bbbbb", "쓰리", "password3");
+    user1 = new User("aaaaa", "원", "password1", Level.BASIC, 1, 0);
+    user2 = new User("ccccc", "투", "password2", Level.SILVER, 55, 10);
+    user3 = new User("bbbbb", "쓰리", "password3", Level.GOLD, 100, 40);
 
     dao.deleteAll();
   }
@@ -44,12 +45,10 @@ public class UserDaoTest {//public 확인(JUnitCore)
     assertThat(dao.getCount(), is(2));
 
     User userFind1 = dao.get(user1.getId());
-    assertThat(userFind1.getName(), is(user1.getName()));
-    assertThat(userFind1.getPassword(), is(user1.getPassword()));
+    checkSameUser(userFind1, user1);
 
     User userFind2 = dao.get(user2.getId());
-    assertThat(userFind2.getName(), is(user2.getName()));
-    assertThat(userFind2.getPassword(), is(user2.getPassword()));
+    checkSameUser(userFind2, user2);
   }
 
   @Test
@@ -103,10 +102,28 @@ public class UserDaoTest {//public 확인(JUnitCore)
     checkSameUser(user2, users3.get(2));
   }
 
+  @Test
+  void update() {
+    dao.add(user1);
+
+    user1.setName("수정01");
+    user1.setPassword("modify01");
+    user1.setLevel(Level.SILVER);
+    user1.setLogin(1000);
+    user1.setRecommend(999);
+    dao.update(user1);
+
+    User user1Update = dao.get(user1.getId());
+    checkSameUser(user1, user1Update);
+  }
+
   private void checkSameUser(User expect, User actual) {
     assertThat(expect.getId(), is(actual.getId()));
     assertThat(expect.getName(), is(actual.getName()));
     assertThat(expect.getPassword(), is(actual.getPassword()));
+    assertThat(expect.getLevel(), is(actual.getLevel()));
+    assertThat(expect.getLogin(), is(actual.getLogin()));
+    assertThat(expect.getRecommend(), is(actual.getRecommend()));
 
   }
 }
