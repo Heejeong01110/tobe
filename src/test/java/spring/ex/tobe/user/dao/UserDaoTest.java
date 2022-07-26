@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,16 +24,19 @@ public class UserDaoTest {//public 확인(JUnitCore)
   @Autowired
   private UserDao dao;
 
-  private User user1;
-  private User user2;
-  private User user3;
+  private static User user1;
+  private static User user2;
+  private static User user3;
 
-  @BeforeEach
-  public void setUp() {
+  @BeforeAll
+  public static void setUpInit() {
     user1 = new User("aaaaa", "원", "password1", Level.BASIC, 1, 0);
     user2 = new User("ccccc", "투", "password2", Level.SILVER, 55, 10);
     user3 = new User("bbbbb", "쓰리", "password3", Level.GOLD, 100, 40);
+  }
 
+  @BeforeEach
+  public void setUp(){
     dao.deleteAll();
   }
 

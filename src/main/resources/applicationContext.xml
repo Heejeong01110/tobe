@@ -15,4 +15,8 @@
     <property name="dataSource" ref="dataSource"/>
   </bean>
 
+  <bean class="spring.ex.tobe.user.service.UserService" id="userService">
+    <property name="userDao" ref="userDao"/>
+  </bean>
+
 </beans>
