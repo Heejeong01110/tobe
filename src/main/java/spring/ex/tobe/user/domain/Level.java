@@ -1,16 +1,18 @@
 package spring.ex.tobe.user.domain;
 
 public enum Level {
-  BASIC(1), SILVER(2), GOLD(3);
+  GOLD(3, null), SILVER(2, GOLD), BASIC(1, SILVER);
 
   private final int value;
+  private final Level next;
 
-  Level(int value) {
+  Level(int value, Level next) {
     this.value = value;
+    this.next = next;
   }
 
   public static Level valueOf(int value) {
-    switch (value){
+    switch (value) {
       case 1 -> {
         return BASIC;
       }
@@ -20,8 +22,12 @@ public enum Level {
       case 3 -> {
         return GOLD;
       }
-      default -> throw new AssertionError("unknown value: "+value);
+      default -> throw new AssertionError("unknown value: " + value);
     }
+  }
+
+  public Level nextLevel() {
+    return next;
   }
 
   public int intValue() {

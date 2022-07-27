@@ -1,5 +1,7 @@
 package spring.ex.tobe.user.domain;
 
+import java.text.MessageFormat;
+
 public class User {
 
   String id;
@@ -20,6 +22,14 @@ public class User {
   }
 
   public User() {
+  }
+
+  public void upgradeLevel(){
+    Level nextLevel = level.nextLevel();
+    if(nextLevel == null){
+      throw new IllegalArgumentException(MessageFormat.format("{0}은 업그레이드가 불가능합니다.", level));
+    }
+    level = nextLevel;
   }
 
   public String getId() {
