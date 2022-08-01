@@ -8,7 +8,6 @@ import static spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy.MIN_REC
 
 import java.util.Arrays;
 import java.util.List;
-import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.PlatformTransactionManager;
 import spring.ex.tobe.user.dao.UserDao;
 import spring.ex.tobe.user.domain.Level;
 import spring.ex.tobe.user.domain.User;
@@ -34,7 +34,7 @@ class UserServiceTest {
   private UserDao userDao;
 
   @Autowired
-  private DataSource dataSource;
+  private PlatformTransactionManager transactionManager;
 
   @BeforeAll
   public static void setUpInit() {
@@ -95,7 +95,7 @@ class UserServiceTest {
 
     UserServiceImpl testUserService = new UserServiceImpl();
     testUserService.setUserDao(userDao);
-    testUserService.setDataSource(dataSource);
+    testUserService.setTransactionManager(transactionManager);
     testUserService.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(users.get(3).getId()));
 
     try {
@@ -122,6 +122,7 @@ class UserServiceTest {
   static class TestUserLevelUpgradePolicy extends OrdinaryUserLevelUpgradePolicy {
 
     private String id;
+
     private TestUserLevelUpgradePolicy(String id) {
       this.id = id;
     }
