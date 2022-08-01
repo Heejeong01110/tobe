@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailSender;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -36,18 +37,21 @@ class UserServiceTest {
   @Autowired
   private PlatformTransactionManager transactionManager;
 
+  @Autowired
+  private MailSender mailSender;
+
   @BeforeAll
   public static void setUpInit() {
     users = Arrays.asList(
-        new User("aaaaa", "원", "password1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER - 1, 0),
+        new User("aaaaa", "원", "password1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER - 1, 0,"aaaa@test.com"),
         new User("ccccc", "투", "password2", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER,
-            0),
+            0,"ccccc@test.com"),
         new User("bbbbb", "쓰리", "password3", Level.SILVER, MIN_LOGCOUNT_FOR_SILVER + 1,
-            MIN_RECOMMEND_FOR_GOLD - 1),
+            MIN_RECOMMEND_FOR_GOLD - 1,"bbbbb@test.com"),
         new User("ddddd", "포", "password4", Level.SILVER, MIN_LOGCOUNT_FOR_SILVER + 1,
-            MIN_RECOMMEND_FOR_GOLD),
+            MIN_RECOMMEND_FOR_GOLD,"ddddd@test.com"),
         new User("eeeee", "오", "password5", Level.GOLD, MIN_LOGCOUNT_FOR_SILVER + 1,
-            Integer.MAX_VALUE)
+            Integer.MAX_VALUE,"eeeee@test.com")
     );
   }
 
@@ -88,7 +92,7 @@ class UserServiceTest {
   }
 
   @Test
-  public void upgradeAllOrNothing() throws Exception {
+  public void upgradeAllOrNothing(){
     for (User user : users) {
       userDao.add(user);
     }
@@ -96,6 +100,7 @@ class UserServiceTest {
     UserServiceImpl testUserService = new UserServiceImpl();
     testUserService.setUserDao(userDao);
     testUserService.setTransactionManager(transactionManager);
+    testUserService.setMailSender(mailSender);
     testUserService.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(users.get(3).getId()));
 
     try {

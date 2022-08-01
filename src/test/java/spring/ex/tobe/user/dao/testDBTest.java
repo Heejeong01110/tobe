@@ -3,6 +3,8 @@ package spring.ex.tobe.user.dao;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy.MIN_LOGCOUNT_FOR_SILVER;
+import static spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy.MIN_RECOMMEND_FOR_GOLD;
 
 import java.sql.SQLException;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,9 +33,11 @@ public class testDBTest {
   @BeforeEach
   public void setUp() {
     //testDB를 코드를 통해 별도로 설정
-    user1 = new User("aaaaa", "원", "password1", Level.BASIC, 1, 0);
-    user2 = new User("ccccc", "투", "password2", Level.SILVER, 55, 10);
-    user3 = new User("bbbbb", "쓰리", "password3", Level.GOLD, 100, 40);
+    user1 = new User("aaaaa", "원", "password1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER - 1, 0,"aaaa@test.com");
+    user2 = new User("bbbbb", "쓰리", "password3", Level.SILVER, MIN_LOGCOUNT_FOR_SILVER + 1,
+        MIN_RECOMMEND_FOR_GOLD - 1,"bbbbb@test.com");
+    user3 =new User("bbbbb", "쓰리", "password3", Level.SILVER, MIN_LOGCOUNT_FOR_SILVER + 1,
+        MIN_RECOMMEND_FOR_GOLD - 1,"bbbbb@test.com");
   }
 
   @Test
