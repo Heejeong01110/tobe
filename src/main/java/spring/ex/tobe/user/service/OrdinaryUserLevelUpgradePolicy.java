@@ -20,5 +20,10 @@ public class OrdinaryUserLevelUpgradePolicy implements UserLevelUpgradePolicy{
           MessageFormat.format("Unknown Level: {0}", currentLevel));
     }
   }
+
+  @Override
+  public void upgradeLevel(User user) {
+    user.upgradeLevel();
+  }
 }
 

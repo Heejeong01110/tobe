@@ -18,7 +18,7 @@
   <bean class="spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy"
     id="userLevelUpgradePolicy"/>
 
-  <bean class="spring.ex.tobe.user.service.UserService" id="userService">
+  <bean class="spring.ex.tobe.user.service.UserServiceImpl" id="userService">
     <property name="userDao" ref="userDao"/>
     <property name="userLevelUpgradePolicy" ref="userLevelUpgradePolicy"/>
   </bean>
