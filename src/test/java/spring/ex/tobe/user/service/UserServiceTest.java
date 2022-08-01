@@ -1,5 +1,6 @@
 package spring.ex.tobe.user.service;
 
+import static org.aspectj.bridge.MessageUtil.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy.MIN_LOGCOUNT_FOR_SILVER;
@@ -7,6 +8,7 @@ import static spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy.MIN_REC
 
 import java.util.Arrays;
 import java.util.List;
+import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,10 +26,15 @@ import spring.ex.tobe.user.domain.User;
 class UserServiceTest {
 
   private static List<User> users;
+
   @Autowired
   private UserService userService;
+
   @Autowired
   private UserDao userDao;
+
+  @Autowired
+  private DataSource dataSource;
 
   @BeforeAll
   public static void setUpInit() {
@@ -50,7 +57,7 @@ class UserServiceTest {
   }
 
   @Test
-  public void upgradeLevels() {
+  public void upgradeLevels() throws Exception {
     for (User user : users) {
       userDao.add(user);
     }
@@ -80,6 +87,28 @@ class UserServiceTest {
 
   }
 
+  @Test
+  public void upgradeAllOrNothing() throws Exception {
+    for (User user : users) {
+      userDao.add(user);
+    }
+
+    UserServiceImpl testUserService = new UserServiceImpl();
+    testUserService.setUserDao(userDao);
+    testUserService.setDataSource(dataSource);
+    testUserService.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(users.get(3).getId()));
+
+    try {
+      testUserService.upgradeLevels();
+      fail("TestUserServiceException expected");
+    } catch (TestUserServiceException e) {
+      System.out.println("catch");
+    }
+
+    checkLevelUpgraded(users.get(1), false);
+  }
+
+
   private void checkLevelUpgraded(User user, boolean upgraded) {
     User userUpdate = userDao.get(user.getId());
     if (upgraded) {
@@ -87,6 +116,26 @@ class UserServiceTest {
     } else {
       assertThat(userUpdate.getLevel(), is(user.getLevel()));
     }
+
+  }
+
+  static class TestUserLevelUpgradePolicy extends OrdinaryUserLevelUpgradePolicy {
+
+    private String id;
+    private TestUserLevelUpgradePolicy(String id) {
+      this.id = id;
+    }
+
+    @Override
+    public void upgradeLevel(User user) {
+      if (user.getId().equals(this.id)) {
+        throw new TestUserServiceException();
+      }
+      super.upgradeLevel(user);
+    }
+  }
+
+  static class TestUserServiceException extends RuntimeException {
 
   }
 

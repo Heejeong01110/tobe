@@ -4,7 +4,8 @@ import spring.ex.tobe.user.domain.User;
 
 public interface UserService {
 
-  public void upgradeLevels();
-  public void add(User user);
+  void upgradeLevels() throws Exception;
+
+  void add(User user);
 
 }

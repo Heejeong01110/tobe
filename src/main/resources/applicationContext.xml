@@ -20,6 +20,7 @@
 
   <bean class="spring.ex.tobe.user.service.UserServiceImpl" id="userService">
     <property name="userDao" ref="userDao"/>
+    <property name="dataSource" ref="dataSource"/>
     <property name="userLevelUpgradePolicy" ref="userLevelUpgradePolicy"/>
   </bean>
 
