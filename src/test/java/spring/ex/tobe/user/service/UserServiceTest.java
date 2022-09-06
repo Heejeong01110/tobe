@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.is;
 import static spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy.MIN_LOGCOUNT_FOR_SILVER;
 import static spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy.MIN_RECOMMEND_FOR_GOLD;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,7 +14,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -39,6 +42,9 @@ class UserServiceTest {
 
   @Autowired
   private MailSender mailSender;
+
+  @Autowired
+  private UserLevelUpgradePolicy policy;
 
   @BeforeAll
   public static void setUpInit() {
@@ -72,6 +78,33 @@ class UserServiceTest {
     checkLevelUpgraded(users.get(2), false);
     checkLevelUpgraded(users.get(3), true);
     checkLevelUpgraded(users.get(4), false);
+  }
+
+  @Test
+  public void upgradeLevelsMailMockTest(){
+    for (User user : users) {
+      userDao.add(user);
+    }
+
+    UserServiceImpl testUserService = new UserServiceImpl();
+    MockMailSender mockMailSender = new MockMailSender();
+    testUserService.setUserDao(userDao);
+    testUserService.setTransactionManager(transactionManager);
+    testUserService.setMailSender(mockMailSender);
+    testUserService.setUserLevelUpgradePolicy(policy); //기존 DI 불러와서 넣기
+
+    testUserService.upgradeLevels();
+    checkLevelUpgraded(users.get(0), false);
+    checkLevelUpgraded(users.get(1), true);
+    checkLevelUpgraded(users.get(2), false);
+    checkLevelUpgraded(users.get(3), true);
+    checkLevelUpgraded(users.get(4), false);
+
+    List<String> request = mockMailSender.getRequests();
+    assertThat(request.size(), is(2));
+    assertThat(request.get(0), is(users.get(1).getEmail()));
+    assertThat(request.get(1), is(users.get(3).getEmail()));
+
   }
 
   @Test
@@ -122,6 +155,24 @@ class UserServiceTest {
       assertThat(userUpdate.getLevel(), is(user.getLevel()));
     }
 
+  }
+  static class MockMailSender implements MailSender{
+
+    private List<String> requests = new ArrayList<>();
+
+    public List<String> getRequests() {
+      return requests;
+    }
+
+    @Override
+    public void send(SimpleMailMessage simpleMessage) throws MailException {
+      requests.add(simpleMessage.getTo()[0]);
+    }
+
+    @Override
+    public void send(SimpleMailMessage... simpleMessages) throws MailException {
+
+    }
   }
 
   static class TestUserLevelUpgradePolicy extends OrdinaryUserLevelUpgradePolicy {

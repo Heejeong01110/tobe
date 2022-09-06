@@ -4,5 +4,5 @@ import spring.ex.tobe.user.domain.User;
 
 public interface UserLevelUpgradePolicy {
   boolean canUpgradeLevel(User user);
-  public void upgradeLevel(User user);
+  void upgradeLevel(User user);
 }
