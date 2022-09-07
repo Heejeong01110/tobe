@@ -53,15 +53,16 @@ class UserServiceTest {
   @BeforeAll
   public static void setUpInit() {
     users = Arrays.asList(
-        new User("aaaaa", "원", "password1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER - 1, 0,"aaaa@test.com"),
+        new User("aaaaa", "원", "password1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER - 1, 0,
+            "aaaa@test.com"),
         new User("ccccc", "투", "password2", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER,
-            0,"ccccc@test.com"),
+            0, "ccccc@test.com"),
         new User("bbbbb", "쓰리", "password3", Level.SILVER, MIN_LOGCOUNT_FOR_SILVER + 1,
-            MIN_RECOMMEND_FOR_GOLD - 1,"bbbbb@test.com"),
+            MIN_RECOMMEND_FOR_GOLD - 1, "bbbbb@test.com"),
         new User("ddddd", "포", "password4", Level.SILVER, MIN_LOGCOUNT_FOR_SILVER + 1,
-            MIN_RECOMMEND_FOR_GOLD,"ddddd@test.com"),
+            MIN_RECOMMEND_FOR_GOLD, "ddddd@test.com"),
         new User("eeeee", "오", "password5", Level.GOLD, MIN_LOGCOUNT_FOR_SILVER + 1,
-            Integer.MAX_VALUE,"eeeee@test.com")
+            Integer.MAX_VALUE, "eeeee@test.com")
     );
   }
 
@@ -86,26 +87,33 @@ class UserServiceTest {
 
   @Test
   @DirtiesContext
-  public void upgradeLevelsMailMockTest() throws Exception {
-    for (User user : users) {
-      userDao.add(user);
-    }
+  public void upgradeLevelsMailMockTest(){
+    UserServiceImpl userServiceImpl = new UserServiceImpl();
+
+    MockUserDao mockUserDao = new MockUserDao(users);
+    userServiceImpl.setUserDao(mockUserDao);
 
     MockMailSender mockMailSender = new MockMailSender();
     userServiceImpl.setMailSender(mockMailSender);
+    userServiceImpl.setUserLevelUpgradePolicy(policy);
 
-    userService.upgradeLevels();
-    checkLevelUpgraded(users.get(0), false);
-    checkLevelUpgraded(users.get(1), true);
-    checkLevelUpgraded(users.get(2), false);
-    checkLevelUpgraded(users.get(3), true);
-    checkLevelUpgraded(users.get(4), false);
+    userServiceImpl.upgradeLevels();
+
+    List<User> updated = mockUserDao.getUpdated();
+    assertThat(updated.size(), is(2));
+    checkUserAndLevel(updated.get(0), users.get(1).getId(), Level.SILVER);
+    checkUserAndLevel(updated.get(1), users.get(3).getId(), Level.GOLD);
 
     List<String> request = mockMailSender.getRequests();
     assertThat(request.size(), is(2));
     assertThat(request.get(0), is(users.get(1).getEmail()));
     assertThat(request.get(1), is(users.get(3).getEmail()));
 
+  }
+
+  private void checkUserAndLevel(User user, String expectedId, Level expectedLevel) {
+    assertThat(user.getId(), is(expectedId));
+    assertThat(user.getLevel(), is(expectedLevel));
   }
 
   @Test
@@ -127,12 +135,13 @@ class UserServiceTest {
 
   @Test
   @DirtiesContext
-  public void upgradeAllOrNothing(){
+  public void upgradeAllOrNothing() {
     for (User user : users) {
       userDao.add(user);
     }
 
-    userServiceImpl.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(users.get(3).getId()));//기존 DI 불러와서 넣기
+    userServiceImpl.setUserLevelUpgradePolicy(
+        new TestUserLevelUpgradePolicy(users.get(3).getId()));//기존 DI 불러와서 넣기
     try {
       userService.upgradeLevels();
       fail("TestUserServiceException expected");
@@ -155,7 +164,52 @@ class UserServiceTest {
     }
 
   }
-  static class MockMailSender implements MailSender{
+
+  static class MockUserDao implements UserDao {
+
+    private List<User> users;
+    private List<User> updated = new ArrayList<>();
+
+    public MockUserDao(List<User> users) {
+      this.users = users;
+    }
+
+    public List<User> getUpdated() {
+      return updated;
+    }
+
+    @Override
+    public void add(User user) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public User get(String id) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<User> getAll() {
+      return this.users;
+    }
+
+    @Override
+    public void deleteAll() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getCount() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void update(User user) {
+      updated.add(user);
+    }
+  }
+
+  static class MockMailSender implements MailSender {
 
     private List<String> requests = new ArrayList<>();
 
