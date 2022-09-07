@@ -3,6 +3,11 @@ package spring.ex.tobe.user.service;
 import static org.aspectj.bridge.MessageUtil.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy.MIN_LOGCOUNT_FOR_SILVER;
 import static spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy.MIN_RECOMMEND_FOR_GOLD;
 
@@ -13,6 +18,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
@@ -72,56 +78,36 @@ class UserServiceTest {
   }
 
   @Test
-  public void upgradeLevels() throws Exception {
-    for (User user : users) {
-      userDao.add(user);
-    }
-
-    userService.upgradeLevels();
-    checkLevelUpgraded(users.get(0), false);
-    checkLevelUpgraded(users.get(1), true);
-    checkLevelUpgraded(users.get(2), false);
-    checkLevelUpgraded(users.get(3), true);
-    checkLevelUpgraded(users.get(4), false);
-  }
-
-  @Test
   @DirtiesContext
-  public void upgradeLevelsMailMockTest() {
+  public void upgradeLevels() {
     UserServiceImpl userServiceImpl = new UserServiceImpl();
+    UserDao mockUserDao = mock(UserDao.class);
+    MailSender mockMailSender = mock(MailSender.class);
+    ArgumentCaptor<SimpleMailMessage> mailMessageArg = ArgumentCaptor.forClass(
+        SimpleMailMessage.class);
 
-    MockUserDao mockUserDao = new MockUserDao(copyUser(users));
     userServiceImpl.setUserDao(mockUserDao);
-
-    MockMailSender mockMailSender = new MockMailSender();
     userServiceImpl.setMailSender(mockMailSender);
     userServiceImpl.setUserLevelUpgradePolicy(policy);
 
+    when(mockUserDao.getAll()).thenReturn(users);
+
+
     userServiceImpl.upgradeLevels();
 
-    List<User> updated = mockUserDao.getUpdated();
-    assertThat(updated.size(), is(2));
-    checkUserAndLevel(updated.get(0), users.get(1).getId(), Level.SILVER); //정책 바뀌면 결과도 바뀔텐데..?
-    checkUserAndLevel(updated.get(1), users.get(3).getId(), Level.GOLD);
 
-    List<String> request = mockMailSender.getRequests();
-    assertThat(request.size(), is(2));
-    assertThat(request.get(0), is(users.get(1).getEmail()));
-    assertThat(request.get(1), is(users.get(3).getEmail()));
+    verify(mockUserDao, times(2)).update(any(User.class));
 
-  }
+    verify(mockUserDao).update(users.get(1));
+    assertThat(users.get(1).getLevel(), is(Level.SILVER));
+    verify(mockUserDao).update(users.get(3));
+    assertThat(users.get(3).getLevel(), is(Level.GOLD));
 
-  private List<User> copyUser(List<User> users) {
-    List<User> copy = new ArrayList<>(users.size());
-    users.forEach(user -> copy.add(
-        new User(user.getId(), user.getName(), user.getPassword(), user.getLevel(), user.getLogin(),
-            user.getRecommend(), user.getEmail())));
-    return copy;
-  }
+    verify(mockMailSender, times(2)).send(mailMessageArg.capture());
+    List<SimpleMailMessage> mailMessages = mailMessageArg.getAllValues();
+    assertThat(mailMessages.get(0).getTo()[0], is(users.get(1).getEmail()));
+    assertThat(mailMessages.get(1).getTo()[0], is(users.get(3).getEmail()));
 
-  private void checkUserAndLevel(User user, String expectedId, Level expectedLevel) {
-    assertThat(user.getId(), is(expectedId));
-    assertThat(user.getLevel(), is(expectedLevel));
   }
 
   @Test
@@ -173,57 +159,9 @@ class UserServiceTest {
 
   }
 
-  static class MockUserDao implements UserDao {
-
-    private final List<User> users;
-    private final List<User> updated = new ArrayList<>();
-
-    public MockUserDao(List<User> users) {
-      this.users = users;
-    }
-
-    public List<User> getUpdated() {
-      return updated;
-    }
-
-    @Override
-    public void add(User user) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public User get(String id) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<User> getAll() {
-      return this.users;
-    }
-
-    @Override
-    public void deleteAll() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getCount() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void update(User user) {
-      updated.add(user);
-    }
-  }
-
   static class MockMailSender implements MailSender {
 
     private final List<String> requests = new ArrayList<>();
-
-    public List<String> getRequests() {
-      return requests;
-    }
 
     @Override
     public void send(SimpleMailMessage simpleMessage) throws MailException {
