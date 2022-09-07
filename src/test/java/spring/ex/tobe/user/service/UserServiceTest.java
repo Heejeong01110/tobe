@@ -87,10 +87,10 @@ class UserServiceTest {
 
   @Test
   @DirtiesContext
-  public void upgradeLevelsMailMockTest(){
+  public void upgradeLevelsMailMockTest() {
     UserServiceImpl userServiceImpl = new UserServiceImpl();
 
-    MockUserDao mockUserDao = new MockUserDao(users);
+    MockUserDao mockUserDao = new MockUserDao(copyUser(users));
     userServiceImpl.setUserDao(mockUserDao);
 
     MockMailSender mockMailSender = new MockMailSender();
@@ -101,7 +101,7 @@ class UserServiceTest {
 
     List<User> updated = mockUserDao.getUpdated();
     assertThat(updated.size(), is(2));
-    checkUserAndLevel(updated.get(0), users.get(1).getId(), Level.SILVER);
+    checkUserAndLevel(updated.get(0), users.get(1).getId(), Level.SILVER); //정책 바뀌면 결과도 바뀔텐데..?
     checkUserAndLevel(updated.get(1), users.get(3).getId(), Level.GOLD);
 
     List<String> request = mockMailSender.getRequests();
@@ -109,6 +109,14 @@ class UserServiceTest {
     assertThat(request.get(0), is(users.get(1).getEmail()));
     assertThat(request.get(1), is(users.get(3).getEmail()));
 
+  }
+
+  private List<User> copyUser(List<User> users) {
+    List<User> copy = new ArrayList<>(users.size());
+    users.forEach(user -> copy.add(
+        new User(user.getId(), user.getName(), user.getPassword(), user.getLevel(), user.getLogin(),
+            user.getRecommend(), user.getEmail())));
+    return copy;
   }
 
   private void checkUserAndLevel(User user, String expectedId, Level expectedLevel) {
@@ -167,8 +175,8 @@ class UserServiceTest {
 
   static class MockUserDao implements UserDao {
 
-    private List<User> users;
-    private List<User> updated = new ArrayList<>();
+    private final List<User> users;
+    private final List<User> updated = new ArrayList<>();
 
     public MockUserDao(List<User> users) {
       this.users = users;
@@ -211,7 +219,7 @@ class UserServiceTest {
 
   static class MockMailSender implements MailSender {
 
-    private List<String> requests = new ArrayList<>();
+    private final List<String> requests = new ArrayList<>();
 
     public List<String> getRequests() {
       return requests;
@@ -230,7 +238,7 @@ class UserServiceTest {
 
   static class TestUserLevelUpgradePolicy extends OrdinaryUserLevelUpgradePolicy {
 
-    private String id;
+    private final String id;
 
     private TestUserLevelUpgradePolicy(String id) {
       this.id = id;
