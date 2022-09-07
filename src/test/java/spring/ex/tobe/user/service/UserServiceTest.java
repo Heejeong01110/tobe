@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -84,22 +85,16 @@ class UserServiceTest {
   }
 
   @Test
+  @DirtiesContext
   public void upgradeLevelsMailMockTest() throws Exception {
     for (User user : users) {
       userDao.add(user);
     }
 
-    UserServiceImpl testUserServiceImpl = new UserServiceImpl();
-    UserServiceTx testUserService = new UserServiceTx();
     MockMailSender mockMailSender = new MockMailSender();
-    testUserServiceImpl.setUserDao(userDao);
-    testUserServiceImpl.setMailSender(mockMailSender);
-    testUserServiceImpl.setUserLevelUpgradePolicy(policy); //기존 DI 불러와서 넣기
+    userServiceImpl.setMailSender(mockMailSender);
 
-    testUserService.setTransactionManager(transactionManager);
-    testUserService.setUserService(testUserServiceImpl);
-
-    testUserService.upgradeLevels();
+    userService.upgradeLevels();
     checkLevelUpgraded(users.get(0), false);
     checkLevelUpgraded(users.get(1), true);
     checkLevelUpgraded(users.get(2), false);
@@ -131,22 +126,15 @@ class UserServiceTest {
   }
 
   @Test
+  @DirtiesContext
   public void upgradeAllOrNothing(){
     for (User user : users) {
       userDao.add(user);
     }
 
-    UserServiceImpl testUserServiceImpl = new UserServiceImpl();
-    testUserServiceImpl.setUserDao(userDao);
-    testUserServiceImpl.setMailSender(mailSender);
-    testUserServiceImpl.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(users.get(3).getId()));//기존 DI 불러와서 넣기
-
-    UserServiceTx testUserService = new UserServiceTx();
-    testUserService.setTransactionManager(transactionManager);
-    testUserService.setUserService(testUserServiceImpl);
-
+    userServiceImpl.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(users.get(3).getId()));//기존 DI 불러와서 넣기
     try {
-      testUserService.upgradeLevels();
+      userService.upgradeLevels();
       fail("TestUserServiceException expected");
     } catch (TestUserServiceException e) {
       System.out.println("catch");
