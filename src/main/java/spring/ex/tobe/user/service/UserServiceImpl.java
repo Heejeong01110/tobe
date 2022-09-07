@@ -3,9 +3,6 @@ package spring.ex.tobe.user.service;
 import java.util.List;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import spring.ex.tobe.user.dao.UserDao;
 import spring.ex.tobe.user.domain.Level;
 import spring.ex.tobe.user.domain.User;
@@ -13,7 +10,6 @@ import spring.ex.tobe.user.domain.User;
 public class UserServiceImpl implements UserService {
 
   private UserDao userDao;
-  private PlatformTransactionManager transactionManager;
   private UserLevelUpgradePolicy userLevelUpgradePolicy;
   private MailSender mailSender;
 
@@ -21,9 +17,6 @@ public class UserServiceImpl implements UserService {
     this.userDao = userDao;
   }
 
-  public void setTransactionManager(PlatformTransactionManager transactionManager) {
-    this.transactionManager = transactionManager;
-  }
 
   public void setUserLevelUpgradePolicy(UserLevelUpgradePolicy userLevelUpgradePolicy) {
     this.userLevelUpgradePolicy = userLevelUpgradePolicy;
@@ -34,21 +27,12 @@ public class UserServiceImpl implements UserService {
   }
 
   public void upgradeLevels() {
-    TransactionStatus status =
-        transactionManager.getTransaction(new DefaultTransactionDefinition());
+    List<User> users = userDao.getAll();
 
-    try {
-      List<User> users = userDao.getAll();
-
-      for (User user : users) {
-        if (userLevelUpgradePolicy.canUpgradeLevel(user)) {
-          upgradeLevel(user);
-        }
+    for (User user : users) {
+      if (userLevelUpgradePolicy.canUpgradeLevel(user)) {
+        upgradeLevel(user);
       }
-      transactionManager.commit(status);
-    } catch (Exception e) {
-      transactionManager.rollback(status);
-      throw e;
     }
   }
 

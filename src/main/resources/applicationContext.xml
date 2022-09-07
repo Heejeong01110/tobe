@@ -14,7 +14,7 @@
   <bean class="spring.ex.tobe.user.dao.UserDaoJdbc" id="userDao">
     <property name="dataSource" ref="dataSource"/>
   </bean>
-  
+
   <bean class="spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy"
     id="userLevelUpgradePolicy"/>
 
@@ -23,15 +23,18 @@
     <property name="dataSource" ref="dataSource"/>
   </bean>
 
-  <bean id="mailSender" class="spring.ex.tobe.user.service.DummyMailSender">
+  <bean class="spring.ex.tobe.user.service.DummyMailSender" id="mailSender">
     <property name="host" value="mail.server.com"/>
   </bean>
 
-  <bean class="spring.ex.tobe.user.service.UserServiceImpl" id="userService">
+  <bean class="spring.ex.tobe.user.service.UserServiceImpl" id="userServiceImpl">
     <property name="userDao" ref="userDao"/>
-    <property name="transactionManager" ref="transactionManager"/>
     <property name="userLevelUpgradePolicy" ref="userLevelUpgradePolicy"/>
     <property name="mailSender" ref="mailSender"/>
   </bean>
 
+  <bean class="spring.ex.tobe.user.service.UserServiceTx" id="userService">
+    <property name="userService" ref="userServiceImpl"/>
+    <property name="transactionManager" ref="transactionManager"/>
+  </bean>
 </beans>

@@ -23,24 +23,25 @@ import spring.ex.tobe.user.domain.User;
 @ContextConfiguration(locations = "/applicationContext.xml")
 public class UserDaoTest {//public 확인(JUnitCore)
 
-  @Autowired
-  private UserDao dao;
-
   private static User user1;
   private static User user2;
   private static User user3;
 
+  @Autowired
+  private UserDao dao;
+
   @BeforeAll
   public static void setUpInit() {
-    user1 = new User("aaaaa", "원", "password1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER - 1, 0,"aaaa@test.com");
-    user2 = new User("bbbbb", "쓰리", "password3", Level.SILVER, MIN_LOGCOUNT_FOR_SILVER + 1,
-        MIN_RECOMMEND_FOR_GOLD - 1,"bbbbb@test.com");
-    user3 =new User("bbbbb", "쓰리", "password3", Level.SILVER, MIN_LOGCOUNT_FOR_SILVER + 1,
-        MIN_RECOMMEND_FOR_GOLD - 1,"bbbbb@test.com");
+    user1 = new User("aaaaa", "원", "password1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER - 1, 0,
+        "aaaa@test.com");
+    user2 = new User("bbbbb", "투", "password2", Level.SILVER, MIN_LOGCOUNT_FOR_SILVER + 1,
+        MIN_RECOMMEND_FOR_GOLD - 1, "bbbbb@test.com");
+    user3 = new User("ccccc", "쓰리", "password3", Level.SILVER, MIN_LOGCOUNT_FOR_SILVER + 1,
+        MIN_RECOMMEND_FOR_GOLD - 1, "ccccc@test.com");
   }
 
   @BeforeEach
-  public void setUp(){
+  public void setUp() {
     dao.deleteAll();
   }
 
@@ -106,8 +107,8 @@ public class UserDaoTest {//public 확인(JUnitCore)
     List<User> users3 = dao.getAll();
     assertThat(users3.size(), is(3));
     checkSameUser(user1, users3.get(0));
-    checkSameUser(user3, users3.get(1));
-    checkSameUser(user2, users3.get(2));
+    checkSameUser(user2, users3.get(1));
+    checkSameUser(user3, users3.get(2));
   }
 
   @Test

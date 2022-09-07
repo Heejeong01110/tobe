@@ -32,6 +32,9 @@ class UserServiceTest {
   private static List<User> users;
 
   @Autowired
+  private UserServiceImpl userServiceImpl;
+
+  @Autowired
   private UserService userService;
 
   @Autowired
@@ -81,17 +84,20 @@ class UserServiceTest {
   }
 
   @Test
-  public void upgradeLevelsMailMockTest(){
+  public void upgradeLevelsMailMockTest() throws Exception {
     for (User user : users) {
       userDao.add(user);
     }
 
-    UserServiceImpl testUserService = new UserServiceImpl();
+    UserServiceImpl testUserServiceImpl = new UserServiceImpl();
+    UserServiceTx testUserService = new UserServiceTx();
     MockMailSender mockMailSender = new MockMailSender();
-    testUserService.setUserDao(userDao);
+    testUserServiceImpl.setUserDao(userDao);
+    testUserServiceImpl.setMailSender(mockMailSender);
+    testUserServiceImpl.setUserLevelUpgradePolicy(policy); //기존 DI 불러와서 넣기
+
     testUserService.setTransactionManager(transactionManager);
-    testUserService.setMailSender(mockMailSender);
-    testUserService.setUserLevelUpgradePolicy(policy); //기존 DI 불러와서 넣기
+    testUserService.setUserService(testUserServiceImpl);
 
     testUserService.upgradeLevels();
     checkLevelUpgraded(users.get(0), false);
@@ -130,17 +136,22 @@ class UserServiceTest {
       userDao.add(user);
     }
 
-    UserServiceImpl testUserService = new UserServiceImpl();
-    testUserService.setUserDao(userDao);
+    UserServiceImpl testUserServiceImpl = new UserServiceImpl();
+    testUserServiceImpl.setUserDao(userDao);
+    testUserServiceImpl.setMailSender(mailSender);
+    testUserServiceImpl.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(users.get(3).getId()));//기존 DI 불러와서 넣기
+
+    UserServiceTx testUserService = new UserServiceTx();
     testUserService.setTransactionManager(transactionManager);
-    testUserService.setMailSender(mailSender);
-    testUserService.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(users.get(3).getId()));
+    testUserService.setUserService(testUserServiceImpl);
 
     try {
       testUserService.upgradeLevels();
       fail("TestUserServiceException expected");
     } catch (TestUserServiceException e) {
       System.out.println("catch");
+    } catch (Exception e) {
+      e.printStackTrace();
     }
 
     checkLevelUpgraded(users.get(1), false);

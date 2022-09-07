@@ -36,8 +36,8 @@ public class testDBTest {
     user1 = new User("aaaaa", "원", "password1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER - 1, 0,"aaaa@test.com");
     user2 = new User("bbbbb", "쓰리", "password3", Level.SILVER, MIN_LOGCOUNT_FOR_SILVER + 1,
         MIN_RECOMMEND_FOR_GOLD - 1,"bbbbb@test.com");
-    user3 =new User("bbbbb", "쓰리", "password3", Level.SILVER, MIN_LOGCOUNT_FOR_SILVER + 1,
-        MIN_RECOMMEND_FOR_GOLD - 1,"bbbbb@test.com");
+    user3 =new User("ccccc", "쓰리", "password3", Level.SILVER, MIN_LOGCOUNT_FOR_SILVER + 1,
+        MIN_RECOMMEND_FOR_GOLD - 1,"ccccc@test.com");
   }
 
   @Test
