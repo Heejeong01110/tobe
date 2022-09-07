@@ -20,7 +20,7 @@ import spring.ex.tobe.user.domain.Level;
 import spring.ex.tobe.user.domain.User;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(locations = "/applicationContextTest.xml")
+@ContextConfiguration(locations = "/applicationContext.xml")
 public class sqlExceptionTest {
 
   @Autowired
