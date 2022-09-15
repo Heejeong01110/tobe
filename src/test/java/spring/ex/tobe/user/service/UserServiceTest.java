@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import static spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy.MIN_LOGCOUNT_FOR_SILVER;
 import static spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy.MIN_RECOMMEND_FOR_GOLD;
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -92,9 +93,7 @@ class UserServiceTest {
 
     when(mockUserDao.getAll()).thenReturn(users);
 
-
     userServiceImpl.upgradeLevels();
-
 
     verify(mockUserDao, times(2)).update(any(User.class));
 
@@ -148,6 +147,40 @@ class UserServiceTest {
     checkLevelUpgraded(users.get(1), false);
   }
 
+
+  @Test
+  @DirtiesContext
+  public void upgradeAllOrNothingProxy() {
+    TransactionHandler txHandler = new TransactionHandler();
+    txHandler.setTarget(userServiceImpl);
+    txHandler.setTransactionManager(transactionManager);
+    txHandler.setPattern("get");
+
+    UserService proxyUserService = (UserService) Proxy.newProxyInstance(
+        getClass().getClassLoader(),
+        new Class[]{UserService.class},
+        txHandler
+    );
+
+    for (User user : users) {
+      userDao.add(user);
+    }
+
+    userServiceImpl.setUserLevelUpgradePolicy(
+        new TestUserLevelUpgradePolicy(users.get(3).getId()));//기존 DI 불러와서 넣기
+    try {
+
+      proxyUserService.upgradeLevels();
+
+      fail("TestUserServiceException expected");
+    } catch (TestUserServiceException e) {
+      System.out.println("catch");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    checkLevelUpgraded(users.get(1), false);
+  }
 
   private void checkLevelUpgraded(User user, boolean upgraded) {
     User userUpdate = userDao.get(user.getId());
