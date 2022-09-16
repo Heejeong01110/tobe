@@ -12,7 +12,6 @@ import static spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy.MIN_LOG
 import static spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy.MIN_RECOMMEND_FOR_GOLD;
 
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
@@ -21,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.MailException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.annotation.DirtiesContext;
@@ -38,6 +37,10 @@ import spring.ex.tobe.user.domain.User;
 class UserServiceTest {
 
   private static List<User> users;
+
+
+  @Autowired
+  private ApplicationContext context;
 
   @Autowired
   private UserServiceImpl userServiceImpl;
@@ -135,8 +138,15 @@ class UserServiceTest {
 
     userServiceImpl.setUserLevelUpgradePolicy(
         new TestUserLevelUpgradePolicy(users.get(3).getId()));//기존 DI 불러와서 넣기
+
+    TxProxyFactoryBean txProxyFactoryBean = context.getBean("&txProxyFactoryBean",
+        TxProxyFactoryBean.class); //팩토리 빈 자체를 가져와아하므로 빈 이름에 & 넣기
+    txProxyFactoryBean.setTarget(userServiceImpl);
+    UserService txUserService = (UserService) txProxyFactoryBean.getObject();
+
     try {
-      userService.upgradeLevels();
+//      userService.upgradeLevels();
+      txUserService.upgradeLevels();
       fail("TestUserServiceException expected");
     } catch (TestUserServiceException e) {
       System.out.println("catch");
@@ -151,6 +161,7 @@ class UserServiceTest {
   @Test
   @DirtiesContext
   public void upgradeAllOrNothingProxy() {
+
     TransactionHandler txHandler = new TransactionHandler();
     txHandler.setTarget(userServiceImpl);
     txHandler.setTransactionManager(transactionManager);
@@ -190,21 +201,6 @@ class UserServiceTest {
       assertThat(userUpdate.getLevel(), is(user.getLevel()));
     }
 
-  }
-
-  static class MockMailSender implements MailSender {
-
-    private final List<String> requests = new ArrayList<>();
-
-    @Override
-    public void send(SimpleMailMessage simpleMessage) throws MailException {
-      requests.add(simpleMessage.getTo()[0]);
-    }
-
-    @Override
-    public void send(SimpleMailMessage... simpleMessages) throws MailException {
-
-    }
   }
 
   static class TestUserLevelUpgradePolicy extends OrdinaryUserLevelUpgradePolicy {

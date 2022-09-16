@@ -37,4 +37,12 @@
     <property name="userService" ref="userServiceImpl"/>
     <property name="transactionManager" ref="transactionManager"/>
   </bean>
+
+
+  <bean class="spring.ex.tobe.user.service.TxProxyFactoryBean" id="txProxyFactoryBean">
+    <property name="target" ref="userServiceImpl"/>
+    <property name="pattern" value="upgradeLevels"/>
+    <property name="serviceInterface" value="spring.ex.tobe.user.service.UserService"/>
+    <property name="transactionManager" ref="transactionManager"/>
+  </bean>
 </beans>
