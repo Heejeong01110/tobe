@@ -56,9 +56,6 @@ class UserServiceTest {
   private PlatformTransactionManager transactionManager;
 
   @Autowired
-  private MailSender mailSender;
-
-  @Autowired
   private UserLevelUpgradePolicy policy;
 
   @BeforeAll
@@ -140,6 +137,8 @@ class UserServiceTest {
     userServiceImpl.setUserLevelUpgradePolicy(
         new TestUserLevelUpgradePolicy(users.get(3).getId()));//기존 DI 불러와서 넣기
 
+    //bean 이름을 userService 로 하는 경우 팩토리빈의 오브젝트 타입을 돌려주고
+    //&를 붙였을 경우 팩토리빈 자체를 돌려준다
     ProxyFactoryBean proxyFactoryBean = context.getBean("&userService",
         ProxyFactoryBean.class); //팩토리 빈 자체를 가져와아하므로 빈 이름에 & 넣기
     proxyFactoryBean.setTarget(userServiceImpl);
