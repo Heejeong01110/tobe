@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailSender;
@@ -139,13 +140,12 @@ class UserServiceTest {
     userServiceImpl.setUserLevelUpgradePolicy(
         new TestUserLevelUpgradePolicy(users.get(3).getId()));//기존 DI 불러와서 넣기
 
-    TxProxyFactoryBean txProxyFactoryBean = context.getBean("&txProxyFactoryBean",
-        TxProxyFactoryBean.class); //팩토리 빈 자체를 가져와아하므로 빈 이름에 & 넣기
-    txProxyFactoryBean.setTarget(userServiceImpl);
-    UserService txUserService = (UserService) txProxyFactoryBean.getObject();
+    ProxyFactoryBean proxyFactoryBean = context.getBean("&userService",
+        ProxyFactoryBean.class); //팩토리 빈 자체를 가져와아하므로 빈 이름에 & 넣기
+    proxyFactoryBean.setTarget(userServiceImpl);
+    UserService txUserService = (UserService) proxyFactoryBean.getObject();
 
     try {
-//      userService.upgradeLevels();
       txUserService.upgradeLevels();
       fail("TestUserServiceException expected");
     } catch (TestUserServiceException e) {

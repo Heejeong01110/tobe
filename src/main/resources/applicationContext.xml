@@ -33,10 +33,10 @@
     <property name="mailSender" ref="mailSender"/>
   </bean>
 
-  <bean class="spring.ex.tobe.user.service.UserServiceTx" id="userService">
-    <property name="userService" ref="userServiceImpl"/>
-    <property name="transactionManager" ref="transactionManager"/>
-  </bean>
+<!--  <bean class="spring.ex.tobe.user.service.UserServiceTx" id="userService">-->
+<!--    <property name="userService" ref="userServiceImpl"/>-->
+<!--    <property name="transactionManager" ref="transactionManager"/>-->
+<!--  </bean>-->
 
 
   <bean class="spring.ex.tobe.user.service.TxProxyFactoryBean" id="txProxyFactoryBean">
@@ -44,5 +44,31 @@
     <property name="pattern" value="upgradeLevels"/>
     <property name="serviceInterface" value="spring.ex.tobe.user.service.UserService"/>
     <property name="transactionManager" ref="transactionManager"/>
+  </bean>
+
+
+  <bean class="spring.ex.tobe.user.service.TransactionAdvice" id="transactionAdvice">
+    <property name="transactionManager" ref="transactionManager"/>
+  </bean>
+
+
+  <bean class="org.springframework.aop.support.NameMatchMethodPointcut" id="transactionPointcut">
+    <property name="mappedName" value="upgrade*"/>
+  </bean>
+
+
+  <bean class="org.springframework.aop.support.DefaultPointcutAdvisor" id="transactionAdvisor">
+    <property name="pointcut" ref="transactionPointcut"/>
+    <property name="advice" ref="transactionAdvice"/>
+  </bean>
+
+
+  <bean class="org.springframework.aop.framework.ProxyFactoryBean" id="userService">
+    <property name="target" ref="userServiceImpl"/>
+    <property name="interceptorNames"> <!-- 어드바이스와 어드바이저를 동시에 설정할 수 있는 프로퍼티 -->
+      <list>
+        <value>transactionAdvisor</value>
+      </list>
+    </property>
   </bean>
 </beans>
