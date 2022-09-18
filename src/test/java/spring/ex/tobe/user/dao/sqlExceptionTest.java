@@ -52,8 +52,6 @@ public class sqlExceptionTest {
     } catch (DuplicateKeyException e) {
       SQLException sqlEx = (SQLException) e.getRootCause();
       SQLExceptionTranslator set = new SQLErrorCodeSQLExceptionTranslator(dataSource);
-
-      assertThat(set.translate(null, null, sqlEx), is(DuplicateKeyException.class));
     }
   }
 }
