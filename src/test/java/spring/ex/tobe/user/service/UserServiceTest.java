@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import static spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy.MIN_LOGCOUNT_FOR_SILVER;
 import static spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy.MIN_RECOMMEND_FOR_GOLD;
 
-import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,15 +18,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.PlatformTransactionManager;
 import spring.ex.tobe.user.dao.UserDao;
 import spring.ex.tobe.user.domain.Level;
 import spring.ex.tobe.user.domain.User;
@@ -39,21 +35,14 @@ class UserServiceTest {
 
   private static List<User> users;
 
-
-  @Autowired
-  private ApplicationContext context;
-
-  @Autowired
-  private UserServiceImpl userServiceImpl;
-
   @Autowired
   private UserService userService;
 
   @Autowired
-  private UserDao userDao;
-
+  private UserService testUserService;
+  
   @Autowired
-  private PlatformTransactionManager transactionManager;
+  private UserDao userDao;
 
   @Autowired
   private UserLevelUpgradePolicy policy;
@@ -129,58 +118,14 @@ class UserServiceTest {
 
   @Test
   @DirtiesContext
-  public void upgradeAllOrNothing() {
-    for (User user : users) {
-      userDao.add(user);
-    }
-
-    userServiceImpl.setUserLevelUpgradePolicy(
-        new TestUserLevelUpgradePolicy(users.get(3).getId()));//기존 DI 불러와서 넣기
-
-    //bean 이름을 userService 로 하는 경우 팩토리빈의 오브젝트 타입을 돌려주고
-    //&를 붙였을 경우 팩토리빈 자체를 돌려준다
-    ProxyFactoryBean proxyFactoryBean = context.getBean("&userService",
-        ProxyFactoryBean.class); //팩토리 빈 자체를 가져와아하므로 빈 이름에 & 넣기
-    proxyFactoryBean.setTarget(userServiceImpl);
-    UserService txUserService = (UserService) proxyFactoryBean.getObject();
-
-    try {
-      txUserService.upgradeLevels();
-      fail("TestUserServiceException expected");
-    } catch (TestUserServiceException e) {
-      System.out.println("catch");
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    checkLevelUpgraded(users.get(1), false);
-  }
-
-
-  @Test
-  @DirtiesContext
   public void upgradeAllOrNothingProxy() {
-
-    TransactionHandler txHandler = new TransactionHandler();
-    txHandler.setTarget(userServiceImpl);
-    txHandler.setTransactionManager(transactionManager);
-    txHandler.setPattern("get");
-
-    UserService proxyUserService = (UserService) Proxy.newProxyInstance(
-        getClass().getClassLoader(),
-        new Class[]{UserService.class},
-        txHandler
-    );
-
     for (User user : users) {
       userDao.add(user);
     }
 
-    userServiceImpl.setUserLevelUpgradePolicy(
-        new TestUserLevelUpgradePolicy(users.get(3).getId()));//기존 DI 불러와서 넣기
     try {
 
-      proxyUserService.upgradeLevels();
+      this.testUserService.upgradeLevels();
 
       fail("TestUserServiceException expected");
     } catch (TestUserServiceException e) {
@@ -221,6 +166,15 @@ class UserServiceTest {
 
   static class TestUserServiceException extends RuntimeException {
 
+  }
+
+  static class TestUserServiceImpl extends UserServiceImpl {
+    private String id = "ddddd";
+
+    protected void upgradeLevel(User user){
+      if(user.getId().equals(this.id)) throw new TestUserServiceException();
+      super.upgradeLevel(user);
+    }
   }
 
 }
