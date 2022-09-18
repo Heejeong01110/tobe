@@ -40,7 +40,7 @@ class UserServiceTest {
 
   @Autowired
   private UserService testUserService;
-  
+
   @Autowired
   private UserDao userDao;
 
@@ -145,23 +145,6 @@ class UserServiceTest {
       assertThat(userUpdate.getLevel(), is(user.getLevel()));
     }
 
-  }
-
-  static class TestUserLevelUpgradePolicy extends OrdinaryUserLevelUpgradePolicy {
-
-    private final String id;
-
-    private TestUserLevelUpgradePolicy(String id) {
-      this.id = id;
-    }
-
-    @Override
-    public void upgradeLevel(User user) {
-      if (user.getId().equals(this.id)) {
-        throw new TestUserServiceException();
-      }
-      super.upgradeLevel(user);
-    }
   }
 
   static class TestUserServiceException extends RuntimeException {
