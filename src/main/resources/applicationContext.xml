@@ -35,7 +35,7 @@
     <property name="mailSender" ref="mailSender"/>
   </bean>
 
-  <bean class="spring.ex.tobe.user.service.UserServiceTest$TestUserServiceImpl" parent="userService" id="testUserService"/>  <!-- 클래스 내의 static class를 빈으로 등록할 때는 $를 넣어줌 -->
+  <bean class="spring.ex.tobe.user.service.UserServiceTest$TestUserService" parent="userService" id="testUserService"/>  <!-- 클래스 내의 static class를 빈으로 등록할 때는 $를 넣어줌 -->
 
   <!-- aop -->
   <bean class="spring.ex.tobe.user.service.TransactionAdvice" id="transactionAdvice">

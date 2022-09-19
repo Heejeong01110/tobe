@@ -148,7 +148,7 @@ class UserServiceTest {
 
   }
 
-  static class TestUserServiceImpl extends UserServiceImpl {
+  static class TestUserService extends UserServiceImpl {
     private String id = "ddddd";
 
     protected void upgradeLevel(User user){
