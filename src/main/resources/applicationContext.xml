@@ -42,9 +42,8 @@
     <property name="transactionManager" ref="transactionManager"/>
   </bean>
 
-  <bean class="spring.ex.tobe.learningtest.proxy.NameMatchClassMethodPointcut" id="transactionPointcut">
-    <property name="mappedClassName" value="*ServiceImpl"/>
-    <property name="mappedName" value="upgrade*"/>
+  <bean class="org.springframework.aop.aspectj.AspectJExpressionPointcut" id="transactionPointcut">
+    <property name="expression" value="execution(* *..*ServiceImpl.upgrade*(..))"/>
   </bean>
 
   <!-- 다른 빈에서 참조하거나 빈 이름으로 조회할 필요가 없으므로 id 없음 -->
