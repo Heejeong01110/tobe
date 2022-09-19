@@ -21,7 +21,6 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import spring.ex.tobe.user.dao.UserDao;
@@ -69,7 +68,6 @@ class UserServiceTest {
   }
 
   @Test
-  @DirtiesContext
   public void upgradeLevels() {
     UserServiceImpl userServiceImpl = new UserServiceImpl();
     UserDao mockUserDao = mock(UserDao.class);
@@ -117,7 +115,6 @@ class UserServiceTest {
   }
 
   @Test
-  @DirtiesContext
   public void upgradeAllOrNothingProxy() {
     for (User user : users) {
       userDao.add(user);
