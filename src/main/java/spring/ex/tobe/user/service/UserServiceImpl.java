@@ -3,10 +3,12 @@ package spring.ex.tobe.user.service;
 import java.util.List;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.transaction.annotation.Transactional;
 import spring.ex.tobe.user.dao.UserDao;
 import spring.ex.tobe.user.domain.Level;
 import spring.ex.tobe.user.domain.User;
 
+@Transactional
 public class UserServiceImpl implements UserService {
 
   private UserDao userDao;
@@ -26,6 +28,7 @@ public class UserServiceImpl implements UserService {
     this.mailSender = mailSender;
   }
 
+  @Override
   public void upgradeLevels() {
     List<User> users = userDao.getAll();
 
@@ -52,6 +55,7 @@ public class UserServiceImpl implements UserService {
     mailSender.send(mailMessage);
   }
 
+  @Override
   public void add(User user) {
     if (user.getLevel() == null) {
       user.setLevel(Level.BASIC);
@@ -60,11 +64,13 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public User get(String id) {
     return userDao.get(id);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<User> getAll() {
     return userDao.getAll();
   }

@@ -44,22 +44,6 @@
   <bean class="spring.ex.tobe.user.service.UserServiceTest$TestUserService" parent="userService"
     id="testUserService"/>  <!-- 클래스 내의 static class를 빈으로 등록할 때는 $를 넣어줌 -->
 
-  <!-- aop -->
-  <aop:config>
-<!--    <aop:advisor advice-ref="transactionAdvice" pointcut="execution(* *..*Service.*(..))"/>-->
-    <aop:advisor advice-ref="transactionAdvice" pointcut="bean(*Service)"/>
-  </aop:config>
-
-
-  <tx:advice id="transactionAdvice">
-    <!--    transactionManager 빈 아이디가 transactionManager 이라면 생략 가능-->
-    <tx:attributes>
-      <tx:method name="get*" read-only="true"/>
-      <tx:method name="*"/>
-    </tx:attributes>
-  </tx:advice>
-
-  <!-- 다른 빈에서 참조하거나 빈 이름으로 조회할 필요가 없으므로 id 없음 -->
-  <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+  <tx:annotation-driven/>
 
 </beans>

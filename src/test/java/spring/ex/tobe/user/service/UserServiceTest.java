@@ -25,6 +25,7 @@ import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
 import spring.ex.tobe.user.dao.UserDao;
 import spring.ex.tobe.user.domain.Level;
 import spring.ex.tobe.user.domain.User;
@@ -159,6 +160,7 @@ class UserServiceTest {
 
   }
 
+  @Transactional
   static class TestUserService extends UserServiceImpl {
 
     private String id = "ddddd";
@@ -171,12 +173,19 @@ class UserServiceTest {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<User> getAll() {
       List<User> users = super.getAll();
       for (User user : users) {
         super.update(user);
       }
       return null;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public User get(String id) {
+      return super.get(id);
     }
   }
 
