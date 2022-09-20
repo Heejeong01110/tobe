@@ -25,7 +25,10 @@ import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import spring.ex.tobe.user.dao.UserDao;
 import spring.ex.tobe.user.domain.Level;
 import spring.ex.tobe.user.domain.User;
@@ -48,6 +51,9 @@ class UserServiceTest {
 
   @Autowired
   private UserLevelUpgradePolicy policy;
+
+  @Autowired
+  PlatformTransactionManager transactionManager;
 
   @BeforeAll
   public static void setUpInit() {
@@ -144,6 +150,20 @@ class UserServiceTest {
     }
 
     assertThrows(TransientDataAccessResourceException.class, () -> testUserService.getAll());
+  }
+
+  @Test
+  public void transactionSync(){
+    //트랜잭션 1개로 3가지가 모두 처리됨
+    DefaultTransactionDefinition txDefinition = new DefaultTransactionDefinition();
+    TransactionStatus txStatus = transactionManager.getTransaction(txDefinition);
+
+    userService.deleteAll();
+
+    userService.add(users.get(0));
+    userService.add(users.get(1));
+
+    transactionManager.commit(txStatus);
   }
 
   private void checkLevelUpgraded(User user, boolean upgraded) {
