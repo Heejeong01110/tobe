@@ -46,15 +46,16 @@
 
   <!-- aop -->
   <aop:config>
-    <aop:advisor advice-ref="transactionAdvice"
-      pointcut="execution(* *..*ServiceImpl.upgrade*(..))"/>
+<!--    <aop:advisor advice-ref="transactionAdvice" pointcut="execution(* *..*Service.*(..))"/>-->
+    <aop:advisor advice-ref="transactionAdvice" pointcut="bean(*Service)"/>
   </aop:config>
 
-  <tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+
+  <tx:advice id="transactionAdvice">
+    <!--    transactionManager 빈 아이디가 transactionManager 이라면 생략 가능-->
     <tx:attributes>
-      <tx:method name="get*" propagation="REQUIRED" read-only="true" timeout="30"/>
-      <tx:method name="upgrade*" propagation="REQUIRES_NEW" isolation="SERIALIZABLE"/>
-      <tx:method name="*" propagation="REQUIRED"/>
+      <tx:method name="get*" read-only="true"/>
+      <tx:method name="*"/>
     </tx:attributes>
   </tx:advice>
 

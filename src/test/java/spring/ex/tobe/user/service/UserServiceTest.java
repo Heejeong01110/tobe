@@ -3,6 +3,7 @@ package spring.ex.tobe.user.service;
 import static org.aspectj.bridge.MessageUtil.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.TransientDataAccessResourceException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.context.ContextConfiguration;
@@ -134,6 +136,15 @@ class UserServiceTest {
     checkLevelUpgraded(users.get(1), false);
   }
 
+  @Test
+  public void readOnlyTransactionAttribute() {
+    for (User user : users) {
+      userDao.add(user);
+    }
+
+    assertThrows(TransientDataAccessResourceException.class, () -> testUserService.getAll());
+  }
+
   private void checkLevelUpgraded(User user, boolean upgraded) {
     User userUpdate = userDao.get(user.getId());
     if (upgraded) {
@@ -149,11 +160,23 @@ class UserServiceTest {
   }
 
   static class TestUserService extends UserServiceImpl {
+
     private String id = "ddddd";
 
-    protected void upgradeLevel(User user){
-      if(user.getId().equals(this.id)) throw new TestUserServiceException();
+    protected void upgradeLevel(User user) {
+      if (user.getId().equals(this.id)) {
+        throw new TestUserServiceException();
+      }
       super.upgradeLevel(user);
+    }
+
+    @Override
+    public List<User> getAll() {
+      List<User> users = super.getAll();
+      for (User user : users) {
+        super.update(user);
+      }
+      return null;
     }
   }
 

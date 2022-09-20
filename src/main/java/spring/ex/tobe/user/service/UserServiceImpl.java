@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
     }
   }
 
-  protected void upgradeLevel(User user){
+  protected void upgradeLevel(User user) {
     userLevelUpgradePolicy.upgradeLevel(user);
     userDao.update(user);
     sendUpgradeEmail(user);
@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
     mailMessage.setTo(user.getEmail());
     mailMessage.setFrom("admin@test.com");
     mailMessage.setSubject("Upgrade 안내");
-    mailMessage.setText("사용자님의 등급이 "+user.getLevel().name()+"로 업그레이드 되었습니다.");
+    mailMessage.setText("사용자님의 등급이 " + user.getLevel().name() + "로 업그레이드 되었습니다.");
 
     mailSender.send(mailMessage);
   }
@@ -57,6 +57,26 @@ public class UserServiceImpl implements UserService {
       user.setLevel(Level.BASIC);
     }
     userDao.add(user);
+  }
+
+  @Override
+  public User get(String id) {
+    return userDao.get(id);
+  }
+
+  @Override
+  public List<User> getAll() {
+    return userDao.getAll();
+  }
+
+  @Override
+  public void deleteAll() {
+    userDao.deleteAll();
+  }
+
+  @Override
+  public void update(User user) {
+    userDao.update(user);
   }
 
 }
