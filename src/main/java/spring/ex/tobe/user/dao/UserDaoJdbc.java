@@ -7,11 +7,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import spring.ex.tobe.user.domain.Level;
 import spring.ex.tobe.user.domain.User;
+import spring.ex.tobe.user.sqlservice.SqlService;
 
 public class UserDaoJdbc implements UserDao {
 
   private Map<String, String> sqlMap;
   private JdbcTemplate jdbcTemplate;
+  private SqlService sqlService;
 
   private RowMapper<User> userMapper = (rs, rowNum) -> {
     User user = new User();
@@ -36,33 +38,38 @@ public class UserDaoJdbc implements UserDao {
     this.sqlMap = sqlMap;
   }
 
+  public void setSqlService(SqlService sqlService) {
+    this.sqlService = sqlService;
+  }
+
   public void add(final User user) {
     jdbcTemplate.update(
-        sqlMap.get("add"),
+        sqlService.getSql("add"),
         user.getId(), user.getName(), user.getPassword(), user.getLevel().intValue(),
         user.getLogin(), user.getRecommend(), user.getEmail());
   }
 
   public User get(String id) {
-    return jdbcTemplate.queryForObject(sqlMap.get("get"),
+    return jdbcTemplate.queryForObject(sqlService.getSql("get"),
         userMapper, id);
   }
 
   public List<User> getAll() {
-    return jdbcTemplate.query(sqlMap.get("getAll"), userMapper);
+    return jdbcTemplate.query(sqlService.getSql("getAll"), userMapper);
   }
 
   public void deleteAll() {
-    jdbcTemplate.update(sqlMap.get("deleteAll"));
+    jdbcTemplate.update(sqlService.getSql("deleteAll"));
   }
 
   public int getCount() {
-    return jdbcTemplate.queryForObject(sqlMap.get("getCount"), Integer.class);
+    return jdbcTemplate.queryForObject(sqlService.getSql("getCount"), Integer.class);
   }
 
   @Override
   public void update(User user) {
-    jdbcTemplate.update(sqlMap.get("update"), user.getName(), user.getPassword(), user.getLevel().intValue(),
+    jdbcTemplate.update(sqlService.getSql("update"), user.getName(), user.getPassword(),
+        user.getLevel().intValue(),
         user.getLogin(), user.getRecommend(), user.getEmail(), user.getId());
   }
 
