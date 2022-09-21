@@ -26,6 +26,12 @@
   <!-- application component-->
   <bean class="spring.ex.tobe.user.dao.UserDaoJdbc" id="userDao">
     <property name="dataSource" ref="dataSource"/>
+    <property name="sqlAdd" value="insert into users (id, name, password, level, login, recommend, email) values (?, ?, ?, ?, ?, ?, ?)"/>
+    <property name="sqlGet" value="select * from users where id = ?"/>
+    <property name="sqlGetAll" value="select * from users order by id"/>
+    <property name="sqlDeleteAll" value="delete from users"/>
+    <property name="sqlGetCount" value="select count(*) from users"/>
+    <property name="sqlUpdate" value="update users set name = ?, password = ?, level = ?, login = ?, recommend = ? , email = ? where id = ?"/>
   </bean>
 
   <bean class="spring.ex.tobe.user.service.OrdinaryUserLevelUpgradePolicy"
