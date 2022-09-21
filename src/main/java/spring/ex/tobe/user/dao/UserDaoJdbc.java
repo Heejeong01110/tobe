@@ -1,6 +1,7 @@
 package spring.ex.tobe.user.dao;
 
 import java.util.List;
+import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -9,13 +10,7 @@ import spring.ex.tobe.user.domain.User;
 
 public class UserDaoJdbc implements UserDao {
 
-  private String sqlAdd;
-  private String sqlGet;
-  private String sqlGetAll;
-  private String sqlDeleteAll;
-  private String sqlGetCount;
-  private String sqlUpdate;
-
+  private Map<String, String> sqlMap;
   private JdbcTemplate jdbcTemplate;
 
   private RowMapper<User> userMapper = (rs, rowNum) -> {
@@ -37,57 +32,37 @@ public class UserDaoJdbc implements UserDao {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
-  public void setSqlAdd(String sqlAdd) {
-    this.sqlAdd = sqlAdd;
-  }
-
-  public void setSqlGet(String sqlGet) {
-    this.sqlGet = sqlGet;
-  }
-
-  public void setSqlGetAll(String sqlGetAll) {
-    this.sqlGetAll = sqlGetAll;
-  }
-
-  public void setSqlDeleteAll(String sqlDeleteAll) {
-    this.sqlDeleteAll = sqlDeleteAll;
-  }
-
-  public void setSqlGetCount(String sqlGetCount) {
-    this.sqlGetCount = sqlGetCount;
-  }
-
-  public void setSqlUpdate(String sqlUpdate) {
-    this.sqlUpdate = sqlUpdate;
+  public void setSqlMap(Map<String, String> sqlMap) {
+    this.sqlMap = sqlMap;
   }
 
   public void add(final User user) {
     jdbcTemplate.update(
-        sqlAdd,
+        sqlMap.get("add"),
         user.getId(), user.getName(), user.getPassword(), user.getLevel().intValue(),
         user.getLogin(), user.getRecommend(), user.getEmail());
   }
 
   public User get(String id) {
-    return jdbcTemplate.queryForObject(sqlGet,
+    return jdbcTemplate.queryForObject(sqlMap.get("get"),
         userMapper, id);
   }
 
   public List<User> getAll() {
-    return jdbcTemplate.query(sqlGetAll, userMapper);
+    return jdbcTemplate.query(sqlMap.get("getAll"), userMapper);
   }
 
   public void deleteAll() {
-    jdbcTemplate.update(sqlDeleteAll);
+    jdbcTemplate.update(sqlMap.get("deleteAll"));
   }
 
   public int getCount() {
-    return jdbcTemplate.queryForObject(sqlGetCount, Integer.class);
+    return jdbcTemplate.queryForObject(sqlMap.get("getCount"), Integer.class);
   }
 
   @Override
   public void update(User user) {
-    jdbcTemplate.update(sqlUpdate, user.getName(), user.getPassword(), user.getLevel().intValue(),
+    jdbcTemplate.update(sqlMap.get("update"), user.getName(), user.getPassword(), user.getLevel().intValue(),
         user.getLogin(), user.getRecommend(), user.getEmail(), user.getId());
   }
 
