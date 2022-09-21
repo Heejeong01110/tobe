@@ -26,6 +26,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import spring.ex.tobe.user.dao.UserDao;
 import spring.ex.tobe.user.domain.Level;
@@ -75,6 +76,7 @@ class UserServiceTest {
   }
 
   @Test
+  @Transactional(propagation = Propagation.NEVER)
   public void upgradeLevels() {
     UserServiceImpl userServiceImpl = new UserServiceImpl();
     UserDao mockUserDao = mock(UserDao.class);
